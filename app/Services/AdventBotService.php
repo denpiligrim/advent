@@ -21,7 +21,7 @@ class AdventBotService
     {
         $message = $update->getMessage();
         $callback = $update->getCallbackQuery();
-        
+
         // Получаем Chat ID и текст
         $chatId = $message ? $message->getChat()->getId() : $callback->getMessage()->getChat()->getId();
         $text = $message ? $message->getText() : null;
@@ -58,23 +58,32 @@ class AdventBotService
 
     protected function sendWelcome($user)
     {
-        $today = Carbon::now();
-        
-        // Проверка: Игра идет с 1 по 11 января
-        if ($today->month != 1 || $today->day > 11) {
-             if ($today->month == 1 && $today->day == 12) {
-                 return $this->summarizeResults($user); // Итоги 12 числа
-             }
-             $this->telegram->sendMessage([
+        $today = \Carbon\Carbon::now();
+        $startDate = \Carbon\Carbon::parse('2026-01-01'); // Убедитесь, что год верный (следующий январь)
+
+        // 1. Приветствие (отправляется всегда)
+        $welcomeText = "Привет, {$user->first_name}! 🎄\n\nЯ — новогодний бот-адвент. ";
+
+        // 2. Если ивент еще не начался
+        if ($today->lt($startDate)) {
+            $welcomeText .= "Наш праздничный марафон начнется **1 января**! Заходи в первый день года, тебя будут ждать интересные задания, игры и подарки. До встречи! 🎅❄️";
+
+            return $this->telegram->sendMessage([
                 'chat_id' => $user->chat_id,
-                'text' => "Адвент-календарь еще не начался или уже закончился! 🎉"
+                'text' => $welcomeText,
+                'parse_mode' => 'Markdown'
             ]);
-            return;
         }
 
+        // 3. Если ивент уже прошел (после 11 января)
+        if ($today->day > 11 && $today->month == 1 || $today->month > 1) {
+            return $this->summarizeResults($user);
+        }
+
+        // 4. Если сейчас время ивента (1-11 января)
         $this->telegram->sendMessage([
             'chat_id' => $user->chat_id,
-            'text' => "Привет! 🎅 Добро пожаловать в Адвент-календарь! Сегодня {$today->format('d.m')}. Давай посмотрим задания на сегодня."
+            'text' => $welcomeText . "Сегодня уже {$today->format('d.m')}, и мы начинаем! 🎁"
         ]);
 
         $this->giveNextTask($user);
@@ -86,7 +95,7 @@ class AdventBotService
 
         // Ищем задания на СЕГОДНЯ, которые юзер еще НЕ выполнил
         $doneTaskIds = $user->completedTasks()->pluck('task_id');
-        
+
         $nextTask = Task::whereDate('active_date', $today)
             ->whereNotIn('id', $doneTaskIds)
             ->orderBy('sort_order')
@@ -126,7 +135,7 @@ class AdventBotService
     protected function checkAnswer(TelegramUser $user, $text)
     {
         $task = Task::find($user->current_task_id);
-        
+
         // Упрощенная проверка (приводим к нижнему регистру, убираем пробелы)
         $userAnswer = trim(mb_strtolower($text));
         $correctAnswer = trim(mb_strtolower($task->correct_answer));
@@ -145,7 +154,7 @@ class AdventBotService
     {
         if (str_starts_with($data, 'task_done_')) {
             $taskId = str_replace('task_done_', '', $data);
-            
+
             // Проверка, что юзер выполняет именно это задание
             if ($user->current_task_id != $taskId) {
                 return; // Игнорируем старые кнопки
@@ -160,10 +169,10 @@ class AdventBotService
     {
         // 1. Начисляем баллы
         $user->increment('total_score', $task->points);
-        
+
         // 2. Записываем в историю
         $user->completedTasks()->attach($task->id);
-        
+
         // 3. Сбрасываем текущий активный вопрос
         $user->update(['current_task_id' => null]);
 
@@ -183,10 +192,11 @@ class AdventBotService
         sleep(1); // Небольшая пауза для естественности
         $this->giveNextTask($user);
     }
-    
-    protected function summarizeResults($user) {
+
+    protected function summarizeResults($user)
+    {
         // Логика подведения итогов
-         $this->telegram->sendMessage([
+        $this->telegram->sendMessage([
             'chat_id' => $user->chat_id,
             'text' => "🏁 Ивент завершен! Ты набрал {$user->total_score} баллов. Жди информацию о главном призе!"
         ]);
