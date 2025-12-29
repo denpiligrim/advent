@@ -7,6 +7,7 @@ use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Api; // Если используете SDK
+use Telegram\Bot\FileUpload\InputFile;
 
 class AdventBotService
 {
@@ -52,7 +53,7 @@ class AdventBotService
         // 5. Дефолтный ответ на любое другое сообщение
         $this->telegram->sendMessage([
             'chat_id' => $chatId,
-            'text' => "🎄 Я немного занят подготовкой подарков! Если хочешь продолжить игру, нажми /start или жди следующее задание."
+            'text' => "🎄 Я немного занят подготовкой подарков! Если хочешь продолжить **игру**, нажми /start или жди следующее задание."
         ]);
     }
 
@@ -68,10 +69,13 @@ class AdventBotService
         if ($today->lt($startDate)) {
             $welcomeText .= "Наш праздничный марафон начнется **1 января**! Заходи в первый день года, тебя будут ждать интересные задания, игры и подарки. До встречи! 🎅❄️";
 
-            return $this->telegram->sendMessage([
+            $photoPath = storage_path('app/images/welcome.png');
+
+            return $this->telegram->sendPhoto([
                 'chat_id' => $user->chat_id,
-                'text' => $welcomeText,
-                'parse_mode' => 'Markdown'
+                'photo'   => InputFile::create($photoPath),
+                'caption' => $welcomeText,
+                'parse_mode' => 'MarkdownV2'
             ]);
         }
 
@@ -127,7 +131,7 @@ class AdventBotService
         $this->telegram->sendMessage([
             'chat_id' => $user->chat_id,
             'text' => "🎁 **Задание №{$nextTask->sort_order}**\n\n" . $nextTask->question,
-            'parse_mode' => 'Markdown',
+            'parse_mode' => 'MarkdownV2',
             'reply_markup' => $keyboard
         ]);
     }
@@ -185,7 +189,7 @@ class AdventBotService
         $this->telegram->sendMessage([
             'chat_id' => $user->chat_id,
             'text' => $rewardMsg,
-            'parse_mode' => 'Markdown'
+            'parse_mode' => 'MarkdownV2'
         ]);
 
         // 5. Сразу даем следующее задание (если есть)
