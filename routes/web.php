@@ -8,4 +8,4 @@ Route::get('/', function () {
 });
 
 // Webhook URL который вы укажете в BotFather
-Route::post('/telegram/webhook', [TelegramController::class, 'handle']);
+Route::post('/api/telegram/webhook', [TelegramController::class, 'handle']);
