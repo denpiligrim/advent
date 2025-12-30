@@ -10,6 +10,7 @@ class TelegramController extends Controller
 {
     public function handle(Request $request)
     {
+        \Carbon\Carbon::setTestNow(\Carbon\Carbon::parse('2026-01-01 10:00:00'));
         // Инициализация сервиса
         $telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
         $botService = new AdventBotService($telegram);
