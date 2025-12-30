@@ -95,22 +95,22 @@ class AdventBotService
 
     protected function giveNextTask(TelegramUser $user)
     {
-        $today = Carbon::today();
+        $today = \Carbon\Carbon::today();
 
         // Ищем задания на СЕГОДНЯ, которые юзер еще НЕ выполнил
         $doneTaskIds = $user->completedTasks()->pluck('task_id');
 
-        $nextTask = Task::whereDate('active_date', $today)
+        $nextTask = \App\Models\Task::whereDate('active_date', $today)
             ->whereNotIn('id', $doneTaskIds)
             ->orderBy('sort_order')
             ->first();
 
         if (!$nextTask) {
-            // Заданий на сегодня больше нет
             $user->update(['current_task_id' => null]);
             $this->telegram->sendMessage([
                 'chat_id' => $user->chat_id,
-                'text' => "На сегодня заданий больше нет! Отдыхай и приходи завтра ❄️\nТвой текущий счет: {$user->total_score} баллов."
+                'text' => "<b>На сегодня заданий больше нет!</b> Отдыхай и приходи завтра ❄️\n\n🏆 Твой текущий счет: <b>{$user->total_score}</b> баллов.",
+                'parse_mode' => 'HTML'
             ]);
             return;
         }
@@ -118,9 +118,24 @@ class AdventBotService
         // Назначаем текущее задание
         $user->update(['current_task_id' => $nextTask->id]);
 
-        // Формируем клавиатуру, если задание типа 'action' (просто нажать кнопку "Готово")
         $keyboard = null;
-        if ($nextTask->type === 'action') {
+
+        // 1. Логика для кнопок (выбор варианта)
+        if ($nextTask->type === 'button') {
+            $options = explode('|', $nextTask->options);
+            $inlineButtons = [];
+
+            foreach ($options as $option) {
+                // callback_data будет содержать текст ответа
+                $inlineButtons[] = [
+                    ['text' => $option, 'callback_data' => 'ans_' . $option]
+                ];
+            }
+
+            $keyboard = json_encode(['inline_keyboard' => $inlineButtons]);
+        }
+        // 2. Логика для простых действий (если остались задачи типа action)
+        elseif ($nextTask->type === 'action') {
             $keyboard = json_encode([
                 'inline_keyboard' => [[
                     ['text' => "✅ Выполнил!", 'callback_data' => 'task_done_' . $nextTask->id]
@@ -128,9 +143,24 @@ class AdventBotService
             ]);
         }
 
+        // Текст сложности для наглядности
+        $difficulty = match ($nextTask->points) {
+            5 => "🟢 Легко",
+            10 => "🟡 Средне",
+            15 => "🔴 Сложно",
+            default => ""
+        };
+
+        $messageText = "🎁 <b>Задание №{$nextTask->sort_order}</b> ({$difficulty})\n\n" .
+            $nextTask->question;
+
+        if ($nextTask->type === 'text') {
+            $messageText .= "\n\n<i>Напиши ответ сообщением ниже...</i>";
+        }
+
         $this->telegram->sendMessage([
             'chat_id' => $user->chat_id,
-            'text' => "🎁 **Задание №{$nextTask->sort_order}**\n\n" . $nextTask->question,
+            'text' => $messageText,
             'parse_mode' => 'HTML',
             'reply_markup' => $keyboard
         ]);
@@ -139,17 +169,17 @@ class AdventBotService
     protected function checkAnswer(TelegramUser $user, $text)
     {
         $task = Task::find($user->current_task_id);
-
-        // Упрощенная проверка (приводим к нижнему регистру, убираем пробелы)
         $userAnswer = trim(mb_strtolower($text));
-        $correctAnswer = trim(mb_strtolower($task->correct_answer));
 
-        if ($userAnswer == $correctAnswer) {
+        // Разбиваем правильные ответы по запятой
+        $validAnswers = explode(',', mb_strtolower($task->correct_answer));
+
+        if (in_array($userAnswer, $validAnswers)) {
             $this->completeTask($user, $task);
         } else {
             $this->telegram->sendMessage([
                 'chat_id' => $user->chat_id,
-                'text' => "❌ Не совсем верно. Попробуй еще раз!"
+                'text' => "❌ Не совсем так! Попробуй еще раз или используй другое слово."
             ]);
         }
     }
@@ -181,7 +211,7 @@ class AdventBotService
         $user->update(['current_task_id' => null]);
 
         // 4. Отправляем награду
-        $rewardMsg = "✅ **Верно!** Ты получил +{$task->points} баллов.";
+        $rewardMsg = "✅ <b>Верно!</b> Ты получил +{$task->points} баллов.";
         if ($task->reward_content) {
             $rewardMsg .= "\n\n🎁 Твой бонус:\n" . $task->reward_content;
         }
