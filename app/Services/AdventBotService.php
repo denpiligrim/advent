@@ -205,6 +205,9 @@ class AdventBotService
 
     protected function handleCallback($user, $data)
     {
+        $this->telegram->answerCallbackQuery([
+            'callback_query_id' => $this->telegram->getWebhookUpdate()->getCallbackQuery()->get('id'),
+        ]);
         if (str_starts_with($data, 'ans_')) {
             $answer = str_replace('ans_', '', $data);
             $task = Task::find($user->current_task_id);
@@ -230,6 +233,11 @@ class AdventBotService
             $task = Task::find($taskId);
             $this->completeTask($user, $task);
         }
+        $this->telegram->editMessageReplyMarkup([
+            'chat_id' => $user->chat_id,
+            'message_id' => $this->telegram->getWebhookUpdate()->getCallbackQuery()->get('message')->get('message_id'),
+            'reply_markup' => json_encode(['inline_keyboard' => []]) // Удаляем кнопки
+        ]);
     }
 
     protected function completeTask($user, $task)
