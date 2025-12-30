@@ -260,10 +260,21 @@ class AdventBotService
 
         // 5. Сразу даем следующее задание (если есть)
         sleep(1); // Небольшая пауза для естественности
+        
+        $options = explode('|', $task->options);
+        $disabledButtons = [];
+
+        foreach ($options as $opt) {
+            // Если это правильный ответ, помечаем галочкой, остальные — замочком
+            $label = ($opt === $task->correct_answer) ? "✅ $opt" : "❄️ $opt";
+            $disabledButtons[] = [['text' => $label, 'callback_data' => 'done']];
+        }
+
+        // Редактируем сообщение: кнопки остаются, но ведут на 'done'
         $this->telegram->editMessageReplyMarkup([
             'chat_id' => $user->chat_id,
             'message_id' => $this->telegram->getWebhookUpdate()->getCallbackQuery()->get('message')->get('message_id'),
-            'reply_markup' => json_encode(['inline_keyboard' => []])
+            'reply_markup' => json_encode(['inline_keyboard' => $disabledButtons])
         ]);
         $this->giveNextTask($user);
     }
