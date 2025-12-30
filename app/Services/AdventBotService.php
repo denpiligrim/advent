@@ -20,19 +20,38 @@ class AdventBotService
 
     public function handleUpdate($update)
     {
-        $message = $update->getMessage();
-        $callback = $update->getCallbackQuery();
+        $message = $update->get('message');
+        $callback = $update->get('callback_query');
 
-        // Получаем Chat ID и текст
-        $chatId = $message ? $message->getChat()->getId() : $callback->getMessage()->getChat()->getId();
-        $text = $message ? $message->getText() : null;
-        $data = $callback ? $callback->getData() : null;
-        $username = $message ? $message->getFrom()->getUsername() : $callback->getFrom()->getUsername();
+        // Инициализируем переменные по умолчанию
+        $chatId = null;
+        $text = null;
+        $data = null;
+        $username = null;
+        $firstName = 'Друг';
 
-        // 1. Находим или создаем юзера
+        // Если это обычное текстовое сообщение
+        if ($message) {
+            $chatId = $message->get('chat')->get('id');
+            $text = $message->get('text');
+            $username = $message->get('from')->get('username');
+            $firstName = $message->get('from')->get('first_name') ?? 'Друг';
+        }
+        // Если это нажатие на кнопку
+        elseif ($callback) {
+            $chatId = $callback->get('message')->get('chat')->get('id');
+            $data = $callback->get('data');
+            $username = $callback->get('from')->get('username');
+            $firstName = $callback->get('from')->get('first_name') ?? 'Друг';
+        }
+
+        // Если не удалось определить ID чата — выходим
+        if (!$chatId) return;
+
+        // 1. Находим или создаем юзера (используя полученные переменные)
         $user = TelegramUser::firstOrCreate(
             ['chat_id' => $chatId],
-            ['username' => $username, 'first_name' => $message ? $message->getFrom()->getFirstName() : '']
+            ['username' => $username, 'first_name' => $firstName]
         );
 
         // 2. Обработка команд
@@ -186,6 +205,20 @@ class AdventBotService
 
     protected function handleCallback($user, $data)
     {
+        if (str_starts_with($data, 'ans_')) {
+            $answer = str_replace('ans_', '', $data);
+            $task = Task::find($user->current_task_id);
+
+            if ($task && $answer === $task->correct_answer) {
+                return $this->completeTask($user, $task);
+            } else {
+                return $this->telegram->sendMessage([
+                    'chat_id' => $user->chat_id,
+                    'text' => "❌ Неверный вариант. Попробуй другой!"
+                ]);
+            }
+        }
+
         if (str_starts_with($data, 'task_done_')) {
             $taskId = str_replace('task_done_', '', $data);
 
