@@ -233,11 +233,6 @@ class AdventBotService
             $task = Task::find($taskId);
             $this->completeTask($user, $task);
         }
-        $this->telegram->editMessageReplyMarkup([
-            'chat_id' => $user->chat_id,
-            'message_id' => $this->telegram->getWebhookUpdate()->getCallbackQuery()->get('message')->get('message_id'),
-            'reply_markup' => json_encode(['inline_keyboard' => []]) // Удаляем кнопки
-        ]);
     }
 
     protected function completeTask($user, $task)
@@ -265,6 +260,11 @@ class AdventBotService
 
         // 5. Сразу даем следующее задание (если есть)
         sleep(1); // Небольшая пауза для естественности
+        $this->telegram->editMessageReplyMarkup([
+            'chat_id' => $user->chat_id,
+            'message_id' => $this->telegram->getWebhookUpdate()->getCallbackQuery()->get('message')->get('message_id'),
+            'reply_markup' => json_encode(['inline_keyboard' => []])
+        ]);
         $this->giveNextTask($user);
     }
 
