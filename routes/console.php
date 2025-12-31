@@ -7,7 +7,3 @@ use Illuminate\Support\Facades\Schedule;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
-
-Schedule::command('advent:send-reminders')
-    ->dailyAt('11:55')
-    ->timezone('Europe/Moscow');

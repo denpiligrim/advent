@@ -101,16 +101,15 @@ class AdventBotService
 
         // 1. Приветствие (отправляется всегда)
         $welcomeText = "Привет, {$user->first_name}! 🎄\n\nЯ — новогодний бот-адвент. ";
+        $photoPath = config("advent.images.welcome");
 
         // 2. Если ивент еще не начался
         if ($today->lt($startDate)) {
             $welcomeText .= "Наш праздничный марафон начнется <b>1 января</b>! Заходи в первый день года, тебя будут ждать интересные задания и приятный бонус в конце. До встречи! 🎅❄️";
 
-            $photoPath = storage_path('app/images/welcome.png');
-
             return $this->telegram->sendPhoto([
                 'chat_id' => $user->chat_id,
-                'photo'   => InputFile::create($photoPath),
+                'photo'   => $photoPath,
                 'caption' => $welcomeText,
                 'parse_mode' => 'HTML'
             ]);
@@ -122,9 +121,11 @@ class AdventBotService
         }
 
         // 4. Если сейчас время ивента (1-11 января)
-        $this->telegram->sendMessage([
+        $this->telegram->sendPhoto([
             'chat_id' => $user->chat_id,
-            'text' => $welcomeText . "Сегодня уже <b>{$today->format('j')} января</b>, и мы начинаем! 🎁"
+            'photo'   => $photoPath,
+            'caption' => $welcomeText . "Сегодня уже <b>{$today->format('j')} января</b>, и мы начинаем! 🎁",
+            'parse_mode' => 'HTML'
         ]);
 
         $this->giveNextTask($user);
