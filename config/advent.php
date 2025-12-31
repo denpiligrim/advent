@@ -1,0 +1,41 @@
+<?php
+
+// config/advent.php
+return [
+    'images' => [
+        'welcome' => 'AgACAgIAAxkDAAN7aVTYOrW_teY_uC4IfkUxFTXZxEgAAkMMaxvFGKlKTTONyDg1olQBAAMCAAN5AAM4BA',
+        'task1_1'    => 'AgACAgIAAxkDAANraVTWHOwJ8jk_3F-rNku5FoybcQIAAh8MaxvFGKlKhHcnf5YoIfEBAAMCAAN3AAM4BA',
+        'task1_2'    => 'AgACAgIAAxkDAANsaVTWHginGtXNmcg_pvLlWBYqvpsAAiAMaxvFGKlK28w2uUi_HbYBAAMCAAN3AAM4BA',
+        'task1_3'    => 'AgACAgIAAxkDAANtaVTWH8d6byxOH61bITcKNDuBcLUAAiEMaxvFGKlKTrlMOmd8SSoBAAMCAAN3AAM4BA',
+        'task2_1'    => 'AgACAgIAAxkDAANuaVTWIPCg6vr1ZmVYLI3hXzmnLokAAiIMaxvFGKlKGyBMcEBr5tMBAAMCAAN4AAM4BA',
+        'task2_2'    => 'AgACAgIAAxkDAANvaVTWIhOCT8OUao2zgKAfeDW2NiMAAiMMaxvFGKlKXvbOKh7NgqABAAMCAAN3AAM4BA',
+        'task2_3'    => 'AgACAgIAAxkDAANwaVTWIrEFRHCVEaMqEWIfzKfFLO0AAiQMaxvFGKlKr4SVo0FjYJQBAAMCAAN4AAM4BA',
+        'task3_1'    => 'AgACAgIAAxkDAANxaVTWI8odmWcFHESaAasFPxsLqnUAAiUMaxvFGKlK7A7EyGDZw5cBAAMCAAN5AAM4BA',
+        'task3_2'    => 'AgACAgIAAxkDAANyaVTWI0kgbR4v5sdh8GV85WH0Vs0AAiYMaxvFGKlK0FyloJg4v04BAAMCAAN4AAM4BA',
+        'task3_3'    => 'AgACAgIAAxkDAAN8aVTbrjmy-6BbMHrosdHoOHQLhXUAAmUMaxvFGKlK8Ow3mYADxNsBAAMCAAN4AAM4BA',
+        'task4_1'    => '',
+        'task4_2'    => '',
+        'task4_3'    => '',
+        'task5_1'    => '',
+        'task5_2'    => '',
+        'task5_3'    => '',
+        'task6_1'    => '',
+        'task6_2'    => '',
+        'task6_3'    => '',
+        'task7_1'    => '',
+        'task7_2'    => '',
+        'task7_3'    => '',
+        'task8_1'    => '',
+        'task8_2'    => '',
+        'task8_3'    => '',
+        'task9_1'    => '',
+        'task9_2'    => '',
+        'task9_3'    => '',
+        'task10_1'    => '',
+        'task10_2'    => '',
+        'task10_3'    => '',
+        'task11_1'    => '',
+        'task11_2'    => '',
+        'task11_3'    => '',
+    ]
+];
