@@ -70,8 +70,8 @@ class AdventBotService
         }
 
         // 5. Дефолтный ответ (если сообщение не команда и не ответ на задание)
-        $today = \Carbon\Carbon::now();
-        $startDate = \Carbon\Carbon::parse('2026-01-01');
+        $today = Carbon::now();
+        $startDate = Carbon::parse('2026-01-01');
 
         // Если ивент еще не начался
         if ($today->lt($startDate)) {
@@ -96,15 +96,15 @@ class AdventBotService
 
     protected function sendWelcome($user)
     {
-        $today = \Carbon\Carbon::now();
-        $startDate = \Carbon\Carbon::parse('2026-01-01'); // Убедитесь, что год верный (следующий январь)
+        $today = Carbon::now();
+        $startDate = Carbon::parse('2026-01-01'); // Убедитесь, что год верный (следующий январь)
 
         // 1. Приветствие (отправляется всегда)
         $welcomeText = "Привет, {$user->first_name}! 🎄\n\nЯ — новогодний бот-адвент. ";
 
         // 2. Если ивент еще не начался
         if ($today->lt($startDate)) {
-            $welcomeText .= "Наш праздничный марафон начнется <b>1 января</b>! Заходи в первый день года, тебя будут ждать интересные задания, игры и подарки. До встречи! 🎅❄️";
+            $welcomeText .= "Наш праздничный марафон начнется <b>1 января</b>! Заходи в первый день года, тебя будут ждать интересные задания и приятный бонус в конце. До встречи! 🎅❄️";
 
             $photoPath = storage_path('app/images/welcome.png');
 
@@ -124,7 +124,7 @@ class AdventBotService
         // 4. Если сейчас время ивента (1-11 января)
         $this->telegram->sendMessage([
             'chat_id' => $user->chat_id,
-            'text' => $welcomeText . "Сегодня уже {$today->format('d.m')}, и мы начинаем! 🎁"
+            'text' => $welcomeText . "Сегодня уже <b>{$today->format('j')} января</b>, и мы начинаем! 🎁"
         ]);
 
         $this->giveNextTask($user);
@@ -132,7 +132,7 @@ class AdventBotService
 
     protected function giveNextTask(TelegramUser $user)
     {
-        $today = \Carbon\Carbon::today();
+        $today = Carbon::today();
 
         // Ищем задания на СЕГОДНЯ, которые юзер еще НЕ выполнил
         $doneTaskIds = $user->completedTasks()->pluck('task_id');
@@ -182,9 +182,9 @@ class AdventBotService
 
         // Текст сложности для наглядности
         $difficulty = match ($nextTask->points) {
-            5 => "🟢 Легко",
-            10 => "🟡 Средне",
-            15 => "🔴 Сложно",
+            5 => "Легкий уровень",
+            10 => "Средний уровень",
+            15 => "Сложный уровень",
             default => ""
         };
 
@@ -195,9 +195,13 @@ class AdventBotService
             $messageText .= "\n\n<i>Напиши ответ сообщением ниже...</i>";
         }
 
-        $this->telegram->sendMessage([
+        $day = Carbon::parse($nextTask->active_date)->format('j');
+        $photo = config("advent.images.task{$day}_{$nextTask->sort_order}");
+
+        return $this->telegram->sendPhoto([
             'chat_id' => $user->chat_id,
-            'text' => $messageText,
+            'photo'   => $photo,
+            'caption' => $messageText,
             'parse_mode' => 'HTML',
             'reply_markup' => $keyboard
         ]);
