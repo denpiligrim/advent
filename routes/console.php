@@ -9,5 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('advent:send-reminders')
-    ->dailyAt('11:52')
+    ->dailyAt('11:55')
     ->timezone('Europe/Moscow');
