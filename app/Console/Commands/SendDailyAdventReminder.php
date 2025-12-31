@@ -17,8 +17,9 @@ class SendDailyAdventReminder extends Command
     public function handle()
     {
         $telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
-        // $today = Carbon::today();
-        $today = Carbon::parse('2026-01-01'); // Для теста можно подставить Carbon::parse('2026-01-01')
+        $today = Carbon::today();
+        // $today = Carbon::parse('2026-01-01'); // Для теста можно подставить Carbon::parse('2026-01-01')
+        $todayTaskIds = Task::whereDate('active_date', $today)->pluck('id')->toArray();
 
         // Проверяем, есть ли вообще задания на сегодня
         $hasTasks = Task::whereDate('active_date', $today)->exists();
@@ -38,6 +39,16 @@ class SendDailyAdventReminder extends Command
         ]);
 
         foreach ($users as $user) {
+            $completedTodayCount = \DB::table('user_tasks')
+                ->where('user_id', $user->id)
+                ->whereIn('task_id', $todayTaskIds)
+                ->count();
+
+            // Если количество выполненных совпадает с количеством запланированных — пропускаем
+            if ($completedTodayCount >= count($todayTaskIds)) {
+                $this->line("Пользователь {$user->chat_id} уже всё выполнил. Пропускаем.");
+                continue;
+            }
             try {
                 $telegram->sendMessage([
                     'chat_id' => $user->chat_id,
