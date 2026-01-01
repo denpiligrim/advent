@@ -40,7 +40,7 @@ class SendDailyAdventReminder extends Command
 
         foreach ($users as $user) {
             $completedTodayCount = \DB::table('user_tasks')
-                ->where('user_id', $user->id)
+                ->where('telegram_user_id', $user->id)
                 ->whereIn('task_id', $todayTaskIds)
                 ->count();
 
