@@ -140,6 +140,10 @@ class AdventBotService
             ->first();
 
         if (!$nextTask) {
+            $today_day = Carbon::today();
+            if ($today_day->day === 11 && $today_day->month == 1) {
+                return $this->summarizeResults($user);
+            }
             $user->update(['current_task_id' => null]);
             $this->telegram->sendMessage([
                 'chat_id' => $user->chat_id,
@@ -313,7 +317,7 @@ class AdventBotService
         // Логика подведения итогов
         $this->telegram->sendMessage([
             'chat_id' => $user->chat_id,
-            'text' => "🏁 Ивент завершен! Ты набрал {$user->total_score} баллов. Жди информацию о главном призе!"
+            'text' => "🏁 Ивент завершен! Ты набрал {$user->total_score} баллов. Жди информацию о главном призе! А пока подпишись: https://t.me/denpiligrim_web"
         ]);
     }
 }

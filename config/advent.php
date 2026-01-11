@@ -34,8 +34,8 @@ return [
         'task10_1'    => 'AgACAgIAAxkDAAILeWldXWtpO0w2Ocx7ZOEzsrCFYTsUAAIbFWsbEjXoSlL5Rn1Q3quKAQADAgADeAADOAQ',
         'task10_2'    => 'AgACAgIAAxkDAAILemldXXP7ix-_0pgnYqHQuIwpFhQaAAIcFWsbEjXoSvaWxwaaUJ4OAQADAgADdwADOAQ',
         'task10_3'    => 'AgACAgIAAxkDAAILe2ldXXUjTC3N2uSKWkHXyJ75HglFAAIdFWsbEjXoSlxYc9NfiU7MAQADAgADeAADOAQ',
-        'task11_1'    => '',
-        'task11_2'    => '',
-        'task11_3'    => '',
+        'task11_1'    => 'AgACAgIAAxkDAAN7aVTYOrW_teY_uC4IfkUxFTXZxEgAAkMMaxvFGKlKTTONyDg1olQBAAMCAAN5AAM4BA',
+        'task11_2'    => 'AgACAgIAAxkDAAN7aVTYOrW_teY_uC4IfkUxFTXZxEgAAkMMaxvFGKlKTTONyDg1olQBAAMCAAN5AAM4BA',
+        'task11_3'    => 'AgACAgIAAxkDAAN7aVTYOrW_teY_uC4IfkUxFTXZxEgAAkMMaxvFGKlKTTONyDg1olQBAAMCAAN5AAM4BA',
     ]
 ];
