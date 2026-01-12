@@ -37,5 +37,6 @@ return [
         'task11_1'    => 'AgACAgIAAxkDAAN7aVTYOrW_teY_uC4IfkUxFTXZxEgAAkMMaxvFGKlKTTONyDg1olQBAAMCAAN5AAM4BA',
         'task11_2'    => 'AgACAgIAAxkDAAN7aVTYOrW_teY_uC4IfkUxFTXZxEgAAkMMaxvFGKlKTTONyDg1olQBAAMCAAN5AAM4BA',
         'task11_3'    => 'AgACAgIAAxkDAAN7aVTYOrW_teY_uC4IfkUxFTXZxEgAAkMMaxvFGKlKTTONyDg1olQBAAMCAAN5AAM4BA',
+        'final_reward' => 'AgACAgIAAxkDAAIT-Wlk_ODdvUOwy6WrwfuxbjahMZOsAAKMEGsbAnooS7MNV_BCe1qsAQADAgADdwADOAQ',
     ]
 ];
